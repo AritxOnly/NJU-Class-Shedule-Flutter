@@ -4,7 +4,7 @@ import 'package:wheretosleepinnju/Resources/Themes.dart';
 
 import '../../../Utils/ColorUtil.dart';
 import '../../../Utils/States/MainState.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../../Utils/Analytics.dart';
 import 'package:flutter/material.dart';
 
 const String defaultColor = '#0095F9';
@@ -117,7 +117,7 @@ class _ThemeCustomDialogState extends State<ThemeCustomDialog> {
         ],
       ),
       widgetCancelAction: () {
-        UmengCommonSdk.onEvent("theme_change", {
+        Analytics.onEvent("theme_change", {
           "type": "theme_change",
           "action": "cancel",
         });
@@ -129,7 +129,7 @@ class _ThemeCustomDialogState extends State<ThemeCustomDialog> {
             ? defaultColor
             : '#${_controller.text.trim().toUpperCase()}';
 
-        UmengCommonSdk.onEvent("theme_change", {
+        Analytics.onEvent("theme_change", {
           "type": "theme_change",
           "color": finalHex,
         });

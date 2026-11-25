@@ -5,7 +5,7 @@ description: wheretosleepinnju
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 4.1.0+71
+version: 4.1.1+76
 
 environment:
   sdk: ">=3.12.2 <4.0.0"
@@ -39,9 +39,8 @@ dependencies:
   palette_generator:
     path: ./external/flutter_packages/packages/palette_generator
   mobile_scanner:
-    git:
-      url: https://gitcode.com/CPF-Flutter/fluttertpc_mobile_scanner.git
-      ref: 789adb2638ce9063376baeacc9909aad003db48b
+    # Preserve the OHOS/Vision implementation with deferred Android sensor access.
+    path: third_party/mobile_scanner
 
   sqflite:
     git:

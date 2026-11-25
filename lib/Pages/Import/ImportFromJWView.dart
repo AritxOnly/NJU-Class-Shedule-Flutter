@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../Components/Dialog.dart';
 import '../../Components/TransBgTextButton.dart';
 import '../../generated/l10n.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../Utils/Analytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
@@ -232,7 +232,7 @@ class _ImportFromJWViewState extends State<ImportFromJWView> {
                       if (_usrController.value.text.toString() == 'admin' &&
                           _pwdController.value.text.toString() == 'admin') {
                         await _presenter.getDemoClasses(context);
-                        UmengCommonSdk.onEvent("class_import", {
+                        Analytics.onEvent("class_import", {
                           "type": "jw",
                           "action": "success",
                         });
@@ -279,7 +279,7 @@ class _ImportFromJWViewState extends State<ImportFromJWView> {
                             context,
                           );
                         } else {
-                          UmengCommonSdk.onEvent("class_import", {
+                          Analytics.onEvent("class_import", {
                             "type": "jw",
                             "action": "success",
                           });
@@ -290,7 +290,7 @@ class _ImportFromJWViewState extends State<ImportFromJWView> {
                         }
                         Navigator.of(context).pop(true);
                       } else {
-                        UmengCommonSdk.onEvent("class_import", {
+                        Analytics.onEvent("class_import", {
                           "type": "jw",
                           "action": "fail",
                         });

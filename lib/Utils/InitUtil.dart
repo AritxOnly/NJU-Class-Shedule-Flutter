@@ -2,10 +2,11 @@ import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import 'Analytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_review/in_app_review.dart';
 import '../Models/CourseTableModel.dart';
+import '../Models/CourseModel.dart' show CourseProvider;
 import '../Resources/Config.dart';
 import '../Resources/Url.dart';
 import '../Utils/ColorUtil.dart';
@@ -19,7 +20,9 @@ class InitUtil {
     int themeModeIndex = await getThemeMode();
     String themeCustom = await getThemeCustom();
     await checkDataBase();
-    await WeekUtil.checkWeek();
+    await CourseProvider().repairMissingCourseIds();
+    // Browsing another week lasts for this session, not the next cold start.
+    await WeekUtil.checkWeek(resetDisplayedWeek: true);
     await ColorPool.checkColorPool();
 
     // 初始化 Widget 数据
@@ -134,7 +137,7 @@ class InitUtil {
         const Duration(seconds: Config.REVIEW_DIALOG_DELAY_SECONDS),
         () async {
           try {
-            UmengCommonSdk.onEvent('review_dialog', {'action': 'show'});
+            Analytics.onEvent('review_dialog', {'action': 'show'});
             await review.requestReview();
             await sp.setBool('hasShowReview', true);
           } catch (error) {

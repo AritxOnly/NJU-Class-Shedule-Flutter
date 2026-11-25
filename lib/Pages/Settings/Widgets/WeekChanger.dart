@@ -2,7 +2,7 @@ import 'PlatformSettings.dart';
 import '../../../generated/l10n.dart';
 import 'SettingsCard.dart';
 import 'package:flutter/material.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../../Utils/Analytics.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../../../Utils/States/MainState.dart';
 import '../../../Utils/WeekUtil.dart';
@@ -43,7 +43,7 @@ class _WeekChangerState extends State<WeekChanger> {
                   S.of(context).week(snapshot.data.toString()),
             ),
             onTap: () async {
-              UmengCommonSdk.onEvent("week_change", {"action": "show"});
+              Analytics.onEvent("week_change", {"action": "show"});
               final nowWeek = snapshot.data!;
               var selected = nowWeek.clamp(1, Config.MAX_WEEKS);
               final result = await showDialog<int>(
@@ -59,7 +59,7 @@ class _WeekChangerState extends State<WeekChanger> {
                       onValueChanged: (value) => update(() => selected = value),
                     ),
                     widgetCancelAction: () {
-                      UmengCommonSdk.onEvent('week_change', {
+                      Analytics.onEvent('week_change', {
                         'action': 'cancel',
                       });
                       Navigator.pop(dialogContext);
@@ -70,7 +70,7 @@ class _WeekChangerState extends State<WeekChanger> {
                 ),
               );
               if (result != null && context.mounted) {
-                UmengCommonSdk.onEvent('week_change', {'action': 'accept'});
+                Analytics.onEvent('week_change', {'action': 'accept'});
                 await changeWeek(context, result - 1, nowWeek);
               }
             },

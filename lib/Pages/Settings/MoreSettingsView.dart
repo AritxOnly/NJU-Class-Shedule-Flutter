@@ -4,7 +4,7 @@ import 'package:wheretosleepinnju/Pages/Settings/Widgets/ThemeChanger.dart';
 
 import '../../generated/l10n.dart';
 import 'package:flutter/material.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../Utils/Analytics.dart';
 import 'package:scoped_model/scoped_model.dart';
 import '../../Utils/States/MainState.dart';
 import '../../Utils/ColorUtil.dart';
@@ -45,7 +45,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
     await ColorPool.shuffleColorPool();
     if (!mounted) return;
     ScopedModel.of<MainStateModel>(context, rebuildOnChange: false).refresh();
-    UmengCommonSdk.onEvent("more_setting", {"type": 1});
+    Analytics.onEvent("more_setting", {"type": 1});
     Toast.showToast(S.of(context).shuffle_color_pool_success_toast, context);
   }
 
@@ -103,7 +103,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                                 ),
                               ],
                               onChanged: (value) {
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 12,
                                   "result": value.toString(),
                                 });
@@ -134,7 +134,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                       context,
                     ).material3ColorForLight,
                     onChanged: (v) {
-                      UmengCommonSdk.onEvent("more_setting", {
+                      Analytics.onEvent("more_setting", {
                         "type": 20,
                         "result": v.toString(),
                       });
@@ -155,7 +155,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                       context,
                     ).material3ColorForDark,
                     onChanged: (v) {
-                      UmengCommonSdk.onEvent("more_setting", {
+                      Analytics.onEvent("more_setting", {
                         "type": 21,
                         "result": v.toString(),
                       });
@@ -179,7 +179,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                             return SettingsSwitch(
                               value: snapshot.data!,
                               onChanged: (bool value) {
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 6,
                                   "result": value.toString(),
                                 });
@@ -206,7 +206,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                             return SettingsSwitch(
                               value: snapshot.data!,
                               onChanged: (bool value) {
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 7,
                                   "result": value.toString(),
                                 });
@@ -233,7 +233,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                             return SettingsSwitch(
                               value: snapshot.data!,
                               onChanged: (bool value) {
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 8,
                                   "result": value.toString(),
                                 });
@@ -264,7 +264,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                             return SettingsSwitch(
                               value: snapshot.data!,
                               onChanged: (bool value) {
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 22,
                                   "result": value.toString(),
                                 });
@@ -291,7 +291,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                             return SettingsSwitch(
                               value: snapshot.data!,
                               onChanged: (bool value) {
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 9,
                                   "result": value.toString(),
                                 });
@@ -318,7 +318,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                             return SettingsSwitch(
                               value: snapshot.data!,
                               onChanged: (bool value) {
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 10,
                                   "result": value.toString(),
                                 });
@@ -348,7 +348,7 @@ class _MoreSettingsViewState extends State<MoreSettingsView> {
                                 ScopedModel.of<MainStateModel>(
                                   context,
                                 ).setForceZoom(value);
-                                UmengCommonSdk.onEvent("more_setting", {
+                                Analytics.onEvent("more_setting", {
                                   "type": 11,
                                   "result": value.toString(),
                                 });

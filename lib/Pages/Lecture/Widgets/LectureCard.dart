@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../generated/l10n.dart';
 import 'package:flutter/material.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../../Utils/Analytics.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -166,7 +166,7 @@ class _LectureCardState extends State<LectureCard> {
                                       S.of(context).lecture_cast_dialog_content,
                                     ),
                                     widgetCancelAction: () {
-                                      UmengCommonSdk.onEvent("class_import", {
+                                      Analytics.onEvent("class_import", {
                                         "type": "lecture",
                                         "action": "cancel",
                                       });
@@ -174,7 +174,7 @@ class _LectureCardState extends State<LectureCard> {
                                     },
                                     widgetOKAction: () async {
                                       await addLecture();
-                                      UmengCommonSdk.onEvent("class_import", {
+                                      Analytics.onEvent("class_import", {
                                         "type": "lecture",
                                         "action": "success",
                                       });

@@ -8,7 +8,7 @@ import '../../Resources/Constant.dart';
 import '../../Utils/WidgetHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../Utils/Analytics.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 //import 'package:text_view/text_view.dart';
@@ -44,7 +44,8 @@ class CourseTableViewState extends State<CourseTableView>
     with WidgetsBindingObserver {
   final CourseTablePresenter _presenter = CourseTablePresenter();
   Future<bool>? _data;
-  final Map<int, Future<List<Widget>>> _weekPages = {};
+  final _weekPages =
+      <int, ({double rowHeight, Future<List<Widget>> courses})>{};
   MediaQueryData? _layoutMedia;
   double? _layoutToolbarHeight;
   MainStateModel? _mainModel;
@@ -101,7 +102,6 @@ class CourseTableViewState extends State<CourseTableView>
   late int _nowWeekNum;
   late int _nowShowWeekNum;
   late double _screenWidth;
-  late double _screenHeight;
   late double _classTitleWidth;
   late double _classTitleHeight;
   late double _weekTitleHeight;
@@ -175,7 +175,6 @@ class CourseTableViewState extends State<CourseTableView>
     // The timetable is inside SafeArea; landscape iPhones reserve horizontal
     // space for the sensor housing on both sides of the content.
     _screenWidth = mediaQuery.size.width - mediaQuery.padding.horizontal;
-    _screenHeight = mediaQuery.size.height;
     // Seven day columns share a fixed width. Keep this compact overview
     // readable without letting period labels squeeze out the courses.
     // Settings and course details retain the full system text scale.
@@ -189,26 +188,15 @@ class CourseTableViewState extends State<CourseTableView>
     _weekTitleWidth = (_screenWidth - _classTitleWidth) / _maxShowDays;
     int height = await ScopedModel.of<MainStateModel>(context).getClassHeight();
 
-    if (_isForceZoom) {
-      // Fit the rows beneath the fixed header and optional free-course entry.
-      _classTitleHeight =
-          (_screenHeight -
-              _toolbarHeight -
-              mediaQuery.padding.top -
-              (_isShowFreeClass && _freeCourseNum > 0
-                  ? FreeCoursesEntry.extent(_tableTextScaler)
-                  : 0) -
-              (_isShowDate ? _weekTitleHeight * 1.2 : _weekTitleHeight)) /
-          _maxShowClasses;
-    } else if (height.toDouble() != 0) {
+    if (height.toDouble() != 0) {
       _classTitleHeight = height.toDouble();
     } else {
       _classTitleHeight = 52;
     }
-    // Keep period labels readable at accessibility font sizes. The timetable
-    // already scrolls vertically, so fitting every row must not clip labels.
+    // Scrolling mode keeps labels readable at larger font sizes. Force zoom
+    // must retain the fitted row height; ClassTitle scales its labels to fit.
     final minimumRowHeight = (_isShowClassTime ? 52.0 : 24.0) * textScale;
-    if (_classTitleHeight < minimumRowHeight) {
+    if (!_isForceZoom && _classTitleHeight < minimumRowHeight) {
       _classTitleHeight = minimumRowHeight;
     }
 
@@ -218,17 +206,84 @@ class CourseTableViewState extends State<CourseTableView>
   Future<List<Widget>> _buildClassesWidgetListByWeek(
     BuildContext context,
     int weekNum,
+    double rowHeight,
   ) async {
     final CourseTablePresenter presenter = CourseTablePresenter();
     await presenter.refreshClasses(_tableIndex, weekNum);
     return (await presenter.getClassesWidgetList(
           context,
-          _classTitleHeight,
+          rowHeight,
           _weekTitleWidth,
           weekNum,
           _isShowNonCurrentWeekCourses,
         )) ??
         [];
+  }
+
+  Widget _buildWeekPage(BuildContext context, int pageIndex) {
+    final week = pageIndex + 1;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final clearance = AdaptiveContentInsets.bottomOf(
+          context,
+        ).clamp(0.0, constraints.maxHeight).toDouble();
+        final rowHeight = _isForceZoom
+            ? (constraints.maxHeight - clearance) / math.max(1, _maxShowClasses)
+            : _classTitleHeight;
+        var page = _weekPages[week];
+        if (page == null || page.rowHeight != rowHeight) {
+          page = (
+            rowHeight: rowHeight,
+            // Cached course actions must outlive an individual PageView child.
+            courses: _buildClassesWidgetListByWeek(
+              this.context,
+              week,
+              rowHeight,
+            ),
+          );
+          _weekPages[week] = page;
+        }
+        return FutureBuilder<List<Widget>>(
+          future: page.courses,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const SizedBox.expand();
+            return SingleChildScrollView(
+              controller: _scrollController,
+              padding: EdgeInsets.only(bottom: clearance),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClassTitle(
+                    _maxShowClasses,
+                    rowHeight,
+                    _classTitleWidth,
+                    _isShowClassTime,
+                    _isWhiteMode,
+                    classTimeList: _classTimeList,
+                  ),
+                  SizedBox(
+                    height: rowHeight * _maxShowClasses,
+                    width: _screenWidth - _classTitleWidth,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        for (var i = 1; i <= _maxShowClasses; i++)
+                          Container(
+                            margin: EdgeInsets.only(top: i * rowHeight),
+                            width: _weekTitleWidth * _maxShowDays,
+                            child: const Separator(color: Colors.grey),
+                          ),
+                        ...snapshot.data!,
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   void _syncWeekPageController() {
@@ -277,31 +332,19 @@ class CourseTableViewState extends State<CourseTableView>
   }
 
   basicCheck() async {
-    UpdateUtil updateUtil = UpdateUtil();
-    await updateUtil.checkUpdate(context, false);
     PrivacyUtil privacyUtil = PrivacyUtil();
     bool privacyRst = await privacyUtil.checkPrivacy(context, false);
-    if (!privacyRst) return;
-    //初始化组件化基础库, 所有友盟业务SDK都必须调用此初始化接口。
-    UmengCommonSdk.initCommon(
-      '5f8ef217fac90f1c19a7b0f3',
-      '5f9e1efa1c520d30739d2737',
-      'Umeng',
-    );
-    UmengCommonSdk.setPageCollectionModeAuto();
-    // UmengCommonSdk.onEvent("privacy_accept", {"result":"accept"});
-    bool rst =
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (BuildContext context) => const ImportView(),
-          ),
-        ) ??
-        false;
-    if (!rst) return;
-    await _presenter.showAfterImport(context);
-    setState(() {
-      ScopedModel.of<MainStateModel>(context).refresh();
-    });
+    if (!privacyRst || !mounted) return;
+    await Analytics.initializeAfterConsent(privacyUtil.requiredVersion);
+    if (!mounted) return;
+    UpdateUtil updateUtil = UpdateUtil();
+    try {
+      await updateUtil.checkUpdate(context, false);
+    } catch (error) {
+      debugPrint('Update check unavailable: $error');
+    }
+    if (!mounted || !privacyUtil.shouldOfferImport) return;
+    await _importCourses();
   }
 
   Future<void> _chooseWeek(BuildContext context, MainStateModel model) async {
@@ -316,7 +359,7 @@ class CourseTableViewState extends State<CourseTableView>
     } else {
       await model.changeTmpWeek(selection.week);
     }
-    UmengCommonSdk.onEvent('week_choose', {
+    Analytics.onEvent('week_choose', {
       'action': selection.changesCurrentWeek ? 'set_current' : 'view',
     });
   }
@@ -377,7 +420,7 @@ class CourseTableViewState extends State<CourseTableView>
     final mediaQuery = MediaQuery.of(context);
     return ScopedModelDescendant<MainStateModel>(
       builder: (context, child, model) {
-        UmengCommonSdk.onEvent("course_refresh", {"action": "refresh"});
+        Analytics.onEvent("course_refresh", {"action": "refresh"});
         debugPrint('CourseTableView refreshed.');
 
         return FutureBuilder<bool>(
@@ -520,109 +563,13 @@ class CourseTableViewState extends State<CourseTableView>
                                                   model.changeTmpWeek(
                                                     targetWeek,
                                                   );
-                                                  UmengCommonSdk.onEvent(
+                                                  Analytics.onEvent(
                                                     "week_choose",
                                                     {"action": "swipe"},
                                                   );
                                                 }
                                               },
-                                              itemBuilder:
-                                                  (
-                                                    BuildContext context,
-                                                    int pageIndex,
-                                                  ) {
-                                                    final int weekNum =
-                                                        pageIndex + 1;
-                                                    return FutureBuilder<
-                                                      List<Widget>
-                                                    >(
-                                                      future: _weekPages
-                                                          .putIfAbsent(
-                                                            weekNum,
-                                                            () =>
-                                                                _buildClassesWidgetListByWeek(
-                                                                  context,
-                                                                  weekNum,
-                                                                ),
-                                                          ),
-                                                      builder:
-                                                          (
-                                                            BuildContext
-                                                            context,
-                                                            AsyncSnapshot<
-                                                              List<Widget>
-                                                            >
-                                                            classesSnapshot,
-                                                          ) {
-                                                            if (!classesSnapshot
-                                                                .hasData) {
-                                                              return const SizedBox.expand();
-                                                            }
-                                                            List<Widget>
-                                                            divider = List.generate(
-                                                              _maxShowClasses,
-                                                              (
-                                                                int i,
-                                                              ) => Container(
-                                                                margin: EdgeInsets.only(
-                                                                  top:
-                                                                      (i + 1) *
-                                                                      _classTitleHeight,
-                                                                ),
-                                                                width:
-                                                                    _weekTitleWidth *
-                                                                    _maxShowDays,
-                                                                child: const Separator(
-                                                                  color: Colors
-                                                                      .grey,
-                                                                ),
-                                                              ),
-                                                            );
-                                                            return SingleChildScrollView(
-                                                              controller:
-                                                                  _scrollController,
-                                                              padding: EdgeInsets.only(
-                                                                bottom:
-                                                                    AdaptiveNavigationScope.scrollClearanceOf(
-                                                                      context,
-                                                                    ),
-                                                              ),
-                                                              child: Row(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  ClassTitle(
-                                                                    _maxShowClasses,
-                                                                    _classTitleHeight,
-                                                                    _classTitleWidth,
-                                                                    _isShowClassTime,
-                                                                    _isWhiteMode,
-                                                                    classTimeList:
-                                                                        _classTimeList,
-                                                                  ),
-                                                                  SizedBox(
-                                                                    height:
-                                                                        _classTitleHeight *
-                                                                        _maxShowClasses,
-                                                                    width:
-                                                                        _screenWidth -
-                                                                        _classTitleWidth,
-                                                                    child: Stack(
-                                                                      clipBehavior:
-                                                                          Clip.none,
-                                                                      children:
-                                                                          divider +
-                                                                          classesSnapshot
-                                                                              .data!,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            );
-                                                          },
-                                                    );
-                                                  },
+                                              itemBuilder: _buildWeekPage,
                                             ),
                                           ),
                                         ],

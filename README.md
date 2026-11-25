@@ -74,24 +74,15 @@
 
 ## 部署相关
 
-三端使用 `.fvmrc` 固定的 Flutter `3.35.8-ohos-1.0.4`（Dart 3.9.2）。扫码依赖固定到带鸿蒙适配的 mobile_scanner 7.1.4 提交；iOS 改用苹果 Vision，可在 Apple 芯片模拟器原生构建。
+三端使用 `.fvmrc` 固定的 Flutter `3.47.7+ohos-0.0.1-pre`（Dart 3.13.5）。扫码依赖使用 `third_party/mobile_scanner` 中带鸿蒙适配的 7.1.4 源码，并延后 Android 方向传感器访问至实际扫码；来源与补丁见该目录的 `NJU_PATCHES.md`。iOS 使用苹果 Vision，可在 Apple 芯片模拟器原生构建。
 
 同时使用带鸿蒙适配的 WebView 4.13.0、sqflite 2.4.2 和 fluttertoast 9.0.0，清除旧 Android v1 注册接口的依赖。系统分享插件暂保留原实现，并将仅移除 v1 注册代码的兼容补丁放在 `third_party/share_extend`（来源与变更见该目录的 `NJU_PATCHES.md`），无需修改本机 Pub 缓存。
 
-1. 根据 [Flutter OH 3.35](https://gitcode.com/CPF-Flutter/flutter_flutter/tree/3.35.8-ohos-1.0.4) 配置环境；不要对旧的 OH SDK 运行官方 `flutter upgrade`。
-2. 加载项目环境变量：`source tool/setup_ohos_env.sh` （配好环境之后就只需要每次开发打开终端执行一次）
-3. 安装并使用指定版本：`fvm install 3.35.8-ohos-1.0.4 && fvm use 3.35.8-ohos-1.0.4`（FVM 的 Flutter 仓库需配置为 `https://gitcode.com/CPF-Flutter/flutter_flutter.git`）。也可克隆该 tag，并将 `.fvm/flutter_sdk` 链接到 SDK 目录。
-4. 运行 `fvm flutter doctor -v` 检查环境变量配置，Flutter 与 OpenHarmony 都应为 `ok`
-5. 在 `external` 文件夹中 clone 依赖（若尚未 clone）
-  * `cd external`
-  * `git clone https://gitcode.com/openharmony-tpc/flutter_packages.git` 
-  * `git clone https://gitcode.com/nutpi/flutter_plus_plugins_package_info_plus.git`
-  * `git clone https://gitcode.com/openharmony-sig/fluttertpc_device_calendar`
-6. 如果在中国大陆网络下载失败，执行：
-  * `export USE_CN_FLUTTER_MIRROR=1`
-  * `source tool/setup_ohos_env.sh`
+1. 在项目根目录执行 `source tool/setup_ohos_env.sh` 加载开发环境。需要国内 Flutter 下载镜像时，可先设置 `export USE_CN_FLUTTER_MIRROR=1`。
+2. 设置 `export PUB_HOSTED_URL=https://pub.flutter-io.cn`，与锁文件中的包源保持一致。使用 Python 3.12 或更高版本运行 `bash tool/ci/bootstrap.sh`，脚本会检出固定版本的 SDK 和依赖、应用项目补丁并恢复锁定的包版本。
+3. 如需构建鸿蒙版，配置 DevEco SDK 后执行 `.fvm/flutter_sdk/bin/flutter config --enable-ohos`。使用 `.fvm/flutter_sdk/bin/flutter doctor -v` 检查目标平台的工具链。
 
-Android 构建需要 JDK 17、Android SDK 36、AGP 8.13 / Gradle 8.13。`targetSdkVersion` 沿用 33；新版 Flutter 的最低系统为 Android 7.0（API 24），因此不再支持 Android 6.0。更新后运行 `fvm flutter pub get`，不要手动改 `.pub-cache` 中的扫码插件。iOS 的 UMCommon / UMDevice 固定到带 ARM64 模拟器切片的官方 XCFramework 版本。4.1.0 起主应用最低支持 iOS 15，小组件仍需 iOS 17；真机与模拟器部署下限一致，支持 Xcode 27 构建。
+Android 构建使用 JDK 21、Android SDK 37、AGP 9.1.1 和 Gradle 9.5.0。`targetSdkVersion` 沿用 33，最低支持 Android 7.0（API 24）。iOS 的 UMCommon / UMDevice 固定到带 ARM64 模拟器切片的官方 XCFramework 版本。4.1.0 起主应用最低支持 iOS 15，小组件仍需 iOS 17；真机与模拟器部署下限一致，支持 Xcode 27 构建。
 
 ### 使用项目 SDK 构建
 

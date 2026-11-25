@@ -18,7 +18,7 @@ class FreeCoursesEntry extends StatelessWidget {
   final VoidCallback onTap;
   static const _gap = 8.0;
 
-  /// Also consumed by the timetable's fit-to-screen row calculation.
+  /// Height of the entry including the gap below it.
   static double extent(TextScaler scaler) =>
       math.max(40.0, scaler.scale(13) * 1.4 + 10) + _gap;
 

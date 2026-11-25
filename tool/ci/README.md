@@ -13,7 +13,7 @@
 ## 固定工具链与依赖
 
 - 三端统一使用项目原有的 OHOS Flutter 工具链，升级到 `3.47.7+ohos-0.0.1-pre`（`650641656fef1d0578f0bc1ed8f7a35087fc99f3`，Dart 3.13.5）。`.fvmrc`、测试和三端构建使用同一版本；`bash tool/ci/bootstrap.sh` 检出到 `.fvm/flutter_sdk`，满足 flutter_miuix 的 Dart 3.12 要求。
-- `bootstrap.sh` 校验 SDK 标签和提交，并按原有方式固定 `external` 依赖提交。Adaptive Platform UI 使用固定上游检出加 `third_party/patches` 中的局部补丁；友盟的 Pub 归档按版本和 SHA-256 恢复后应用一行 Gradle 补丁。初始化依赖需要 Python 3.12+。不修改全局 Pub 缓存；`mobile_scanner`、`fluttertoast` 和 `package_info_plus` 使用原有 Git/external 路径。所有 Pub 依赖严格按 `pubspec.lock` 恢复。
+- `bootstrap.sh` 校验 SDK 标签和提交，并按原有方式固定 `external` 依赖提交。Adaptive Platform UI 使用固定上游检出加 `third_party/patches` 中的局部补丁；友盟的 Pub 归档按版本和 SHA-256 恢复后应用一行 Gradle 补丁。初始化依赖需要 Python 3.12+。扫码沿用主线 `third_party/mobile_scanner` 的 OHOS/Vision 实现，Android 方向传感器在实际扫码时初始化。`fluttertoast` 和 `package_info_plus` 继续使用固定的 Git/external 依赖。所有 Pub 依赖严格按 `pubspec.lock` 恢复。
 - CI 全局使用 `PUB_HOSTED_URL=https://pub.flutter-io.cn`，与 `pubspec.lock` 记录的包源一致，依赖安装、测试和构建均使用同一包源，保留 `--enforce-lockfile` 校验。
 - 初始化 SDK 时关闭鸿蒙平台支持，避免测试、Android 和 iOS 任务在 `flutter pub get` 生成平台文件时要求鸿蒙 SDK。仅鸿蒙构建任务在安装 SDK 后执行 `flutter config --enable-ohos`。
 - Release 构建保留 Flutter 自动 Pub / 平台注册文件生成步骤，并在构建后检查 `pubspec.lock` 没有变化。此 SDK 在 `--no-pub` 时也会跳过 Release 插件注册文件重建，可能把 `integration_test` 留在 Android 注册文件中，导致编译失败。

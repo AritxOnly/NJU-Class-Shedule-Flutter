@@ -1,6 +1,6 @@
 import 'PlatformSettings.dart';
 import 'package:flutter/material.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../../Utils/Analytics.dart';
 import 'package:wheretosleepinnju/Utils/ColorUtil.dart';
 import '../../../Utils/States/MainState.dart';
 import '../../../Resources/Themes.dart';
@@ -51,7 +51,7 @@ class ThemeChanger extends StatelessWidget {
                     // darkOutlined: !useM3Dark,
                     isSelected: i == selectedIndex,
                     onTap: () {
-                      UmengCommonSdk.onEvent("theme_change", {"type": i});
+                      Analytics.onEvent("theme_change", {"type": i});
                       MainStateModel.of(context).changeTheme(i);
                     },
                   );

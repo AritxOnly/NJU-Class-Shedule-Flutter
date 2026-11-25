@@ -3,7 +3,7 @@ import 'dart:io';
 import '../../generated/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:umeng_common_sdk/umeng_common_sdk.dart';
+import '../../Utils/Analytics.dart';
 import 'package:share_extend/share_extend.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -56,7 +56,7 @@ class _SettingsViewState extends State<SettingsView> {
                   title: Text(S.of(context).import_manually_title),
                   subtitle: Text(S.of(context).import_manually_subtitle),
                   onTap: () {
-                    UmengCommonSdk.onEvent("class_import", {
+                    Analytics.onEvent("class_import", {
                       "type": "manual",
                       "action": "show",
                     });
@@ -74,7 +74,7 @@ class _SettingsViewState extends State<SettingsView> {
                   title: Text(S.of(context).import_title),
                   subtitle: Text(S.of(context).import_subtitle),
                   onTap: () async {
-                    UmengCommonSdk.onEvent("class_import", {
+                    Analytics.onEvent("class_import", {
                       "type": "auto",
                       "action": "show",
                     });
@@ -95,7 +95,7 @@ class _SettingsViewState extends State<SettingsView> {
                   title: Text(S.of(context).view_lecture_title),
                   subtitle: Text(S.of(context).view_lecture_subtitle),
                   onTap: () async {
-                    UmengCommonSdk.onEvent("class_import", {
+                    Analytics.onEvent("class_import", {
                       "type": "lecture",
                       "action": "show",
                     });
@@ -115,7 +115,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: Text(S.of(context).import_or_export_title),
                 subtitle: Text(S.of(context).import_or_export_subtitle),
                 onTap: () {
-                  UmengCommonSdk.onEvent("qr_import", {"action": "show"});
+                  Analytics.onEvent("qr_import", {"action": "show"});
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) => const ShareView(),
@@ -129,7 +129,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: Text(S.of(context).manage_table_title),
                 subtitle: Text(S.of(context).manage_table_subtitle),
                 onTap: () {
-                  UmengCommonSdk.onEvent("schedule_manage", {"action": "show"});
+                  Analytics.onEvent("schedule_manage", {"action": "show"});
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) =>
@@ -161,7 +161,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: Text(S.of(context).more_settings_title),
                 subtitle: Text(S.of(context).more_settings_subtitle),
                 onTap: () {
-                  UmengCommonSdk.onEvent("more_setting", {"action": "show"});
+                  Analytics.onEvent("more_setting", {"action": "show"});
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) =>
@@ -187,7 +187,7 @@ class _SettingsViewState extends State<SettingsView> {
                       S.of(context).widget_and_live_activity_settings_subtitle,
                     ),
                     onTap: () {
-                      UmengCommonSdk.onEvent("widget_setting", {
+                      Analytics.onEvent("widget_setting", {
                         "action": "show",
                       });
                       Navigator.of(context).push(
@@ -232,7 +232,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: Text(S.of(context).share_title),
                 subtitle: Text(S.of(context).share_subtitle),
                 onTap: () {
-                  UmengCommonSdk.onEvent("app_share", {"action": "show"});
+                  Analytics.onEvent("app_share", {"action": "show"});
                   ShareExtend.share(S.of(context).share_content, "text");
                 },
               ),
@@ -242,7 +242,7 @@ class _SettingsViewState extends State<SettingsView> {
                 title: Text(S.of(context).report_title),
                 subtitle: Text(S.of(context).report_subtitle),
                 onTap: () async {
-                  UmengCommonSdk.onEvent("group_add", {"action": "show"});
+                  Analytics.onEvent("group_add", {"action": "show"});
                   bool status = false;
                   if (Platform.isIOS) {
                     status = await _launchURL(Url.QQ_GROUP_APPLE_URL);
@@ -256,7 +256,7 @@ class _SettingsViewState extends State<SettingsView> {
                   }
                 },
                 onLongPress: () async {
-                  UmengCommonSdk.onEvent("group_add", {"action": "copy"});
+                  Analytics.onEvent("group_add", {"action": "copy"});
                   if (Platform.isIOS) {
                     await Clipboard.setData(
                       const ClipboardData(text: Config.IOS_GROUP),
@@ -285,7 +285,7 @@ class _SettingsViewState extends State<SettingsView> {
                     title: Text(S.of(context).donate_title),
                     subtitle: Text(S.of(context).donate_subtitle),
                     onTap: () async {
-                      UmengCommonSdk.onEvent("donate_click", {
+                      Analytics.onEvent("donate_click", {
                         "action": "show",
                       });
                       bool status = false;
@@ -324,7 +324,7 @@ class _SettingsViewState extends State<SettingsView> {
                       },
                 ),
                 onTap: () {
-                  UmengCommonSdk.onEvent("about_click", {"action": "show"});
+                  Analytics.onEvent("about_click", {"action": "show"});
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) => const AboutView(),

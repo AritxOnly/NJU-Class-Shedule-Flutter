@@ -81,6 +81,86 @@
       "isGrey3.1.0": false
     },
     {
+      "title": "北京航空航天大学本科生教务系统",
+      "pinyin": "beijinghangkonghangtiandaxuebenkejiaowu",
+      "description": "但北京也不让航空航天啊",
+      "page_title": "北航教务登录",
+      "initialUrl": "https://byxt-443.e1.buaa.edu.cn/",
+      "redirectUrl": "",
+      "targetUrl": "https://byxt-443.e1.buaa.edu.cn/jwapp/sys/homeapp/home/index.html",
+      "preExtractJS": "window.__NJU_SCHEDULE_IMPORT_CONFIG__={\"semester_start_monday\":\"2026-09-07\"};",
+      "delayTime": 3,
+      "extractJS": "",
+      "extractJSfileAndroid": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/buaabksjw.js",
+      "extractJSfileiOS": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/buaabksjw.js",
+      "extractJSfileOHOS": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/buaabksjw.js",
+      "banner_content": "导入方式：使用北航统一认证登录后，自动导入当前学期已排课课程（含实验课）。\n未排课课程请在教务系统查询后手动添加。访问异常可先打开学校官方VPN。",
+      "banner_action": "北航官方VPN入口",
+      "banner_url": "https://e.buaa.edu.cn/",
+      "class_time_list": [
+        {
+          "start": "08:00",
+          "end": "08:45"
+        },
+        {
+          "start": "08:50",
+          "end": "09:35"
+        },
+        {
+          "start": "09:50",
+          "end": "10:35"
+        },
+        {
+          "start": "10:40",
+          "end": "11:25"
+        },
+        {
+          "start": "11:30",
+          "end": "12:15"
+        },
+        {
+          "start": "14:00",
+          "end": "14:45"
+        },
+        {
+          "start": "14:50",
+          "end": "15:35"
+        },
+        {
+          "start": "15:50",
+          "end": "16:35"
+        },
+        {
+          "start": "16:40",
+          "end": "17:25"
+        },
+        {
+          "start": "17:30",
+          "end": "18:15"
+        },
+        {
+          "start": "19:00",
+          "end": "19:45"
+        },
+        {
+          "start": "19:50",
+          "end": "20:35"
+        },
+        {
+          "start": "20:40",
+          "end": "21:25"
+        },
+        {
+          "start": "21:30",
+          "end": "22:15"
+        }
+      ],
+      "semester_start_monday": "2026-09-07",
+      "week_count": 19,
+      "isGrey": true,
+      "isGrey3.1.0": false
+    },
+    {
       "title": "东南大学本研课表",
       "pinyin": "dongnandaxue",
       "description": "南哪课表嘛，东南也算南哪（大误",
@@ -548,16 +628,16 @@
       "pinyin": "nanjingshifandaxuebenkejiaowu",
       "description": "南师大怎么不是南大呢",
       "page_title": "南京师范大学课表",
-      "initialUrl": "https://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/*default/index.do",
+      "initialUrl": "https://ehallapp.nnu.edu.cn/jwapp/sys/syxkjg/*default/index.do",
       "redirectUrl": "",
-      "targetUrl": "https://ehallapp.nnu.edu.cn/jwapp/sys/wdkb/*default/index.do",
+      "targetUrl": "https://ehallapp.nnu.edu.cn/jwapp/sys/syxkjg/*default/index.do#/wdkb",
       "preExtractJS": "",
       "delayTime": 3,
       "extractJS": "",
       "extractJSfileAndroid": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/nnubksjw.js",
       "extractJSfileiOS": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/nnubksjw.js",
       "extractJSfileOHOS": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/nnubksjw.js",
-      "banner_content": "导入方式：登录后进入我的课表查看页面。若页面无法打开，请关闭代理或将 nnu.edu.cn 设置为直连。",
+      "banner_content": "导入方式：登录后进入我的课表查看页面。\n若页面无法打开，请关闭代理或将 nnu.edu.cn 设置为直连。",
       "banner_action": "使用南京师范大学vpn",
       "banner_url": "",
       "class_time_list": [
@@ -611,6 +691,80 @@
         }
       ],
       "semester_start_monday": "2026-08-31",
+      "isGrey": true,
+      "isGrey3.1.0": false
+    },
+    {
+      "title": "复旦大学研究生选课系统",
+      "pinyin": "fudandaxueyanjiushengxuanke",
+      "description": "隔壁西南某高校有了，我们东北某高校也必须安排上！",
+      "page_title": "复旦大学研究生课表",
+      "initialUrl": "http://yjsxk.fudan.edu.cn/yjsxkapp/sys/xsxkappfudan/*default/index.do",
+      "redirectUrl": "",
+      "targetUrl": "http://yjsxk.fudan.edu.cn/yjsxkapp/sys/xsxkappfudan/xsxkHome/gotoChooseCourse.do",
+      "preExtractJS": "",
+      "delayTime": 0,
+      "extractJS": "",
+      "extractJSfileAndroid": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/fduyjsxk.js",
+      "extractJSfileiOS": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/fduyjsxk.js",
+      "extractJSfileOHOS": "https://cdn.idealclover.cn/Projects/wheretosleepinnju/production/tools/fduyjsxk.js",
+      "banner_content": "选择对应学期的选课轮次并登录，进入选课页面后自动读取已选课程。",
+      "banner_action": "",
+      "banner_url": "",
+      "class_time_list": [
+        {
+          "start": "08:00",
+          "end": "08:45"
+        },
+        {
+          "start": "08:55",
+          "end": "09:40"
+        },
+        {
+          "start": "09:55",
+          "end": "10:40"
+        },
+        {
+          "start": "10:50",
+          "end": "11:35"
+        },
+        {
+          "start": "11:45",
+          "end": "12:30"
+        },
+        {
+          "start": "13:30",
+          "end": "14:15"
+        },
+        {
+          "start": "14:25",
+          "end": "15:10"
+        },
+        {
+          "start": "15:25",
+          "end": "16:10"
+        },
+        {
+          "start": "16:20",
+          "end": "17:05"
+        },
+        {
+          "start": "17:15",
+          "end": "18:00"
+        },
+        {
+          "start": "18:30",
+          "end": "19:15"
+        },
+        {
+          "start": "19:25",
+          "end": "20:10"
+        },
+        {
+          "start": "20:20",
+          "end": "21:05"
+        }
+      ],
       "isGrey": true,
       "isGrey3.1.0": false
     }
