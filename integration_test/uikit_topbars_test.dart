@@ -95,6 +95,8 @@ void main() {
     final preference = AdaptiveUIController();
     final navigator = GlobalKey<NavigatorState>();
     var weekTaps = 0, settingsTaps = 0;
+    final scroll = ScrollController();
+    addTearDown(scroll.dispose);
     await tester.pumpWidget(
       app(
         AdaptiveScaffold(
@@ -118,9 +120,17 @@ void main() {
                   settingsTaps++;
                   navigator.currentState!.push(
                     MaterialPageRoute<void>(
-                      builder: (_) => const AdaptiveScaffold(
-                        appBar: AdaptiveTopAppBar(title: Text('UIKit 子页面')),
-                        body: Text('Back navigation'),
+                      builder: (_) => AdaptiveScaffold(
+                        appBar: const AdaptiveTopAppBar(
+                          title: Text('UIKit 子页面'),
+                        ),
+                        body: AdaptivePageList(
+                          controller: scroll,
+                          children: List.generate(
+                            32,
+                            (i) => SizedBox(height: 64, child: Text('课程 $i')),
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -159,6 +169,22 @@ void main() {
     await tester.pumpAndSettle();
     final child = await snapshot(tester, (d) => d['title'] == 'UIKit 子页面');
     expect((child['configuration'] as Map)['leading'], '');
+    expect(child['backdropVisible'], false);
+    final controlsBottom = child['navigationBottom'] as num;
+    expect(child['headerHeight'] as num, greaterThan(controlsBottom));
+    expect(tester.getTopLeft(find.byType(ListView)).dy, 0);
+    expect(
+      tester.getTopLeft(find.text('课程 0')).dy,
+      greaterThanOrEqualTo(controlsBottom),
+    );
+    scroll.jumpTo(80);
+    await tester.pumpAndSettle();
+    await snapshot(tester, (d) => d['backdropVisible'] == true);
+    expect(tester.getTopLeft(find.text('课程 0')).dy, lessThan(controlsBottom));
+    await capture('uikit-secondary-scrolled');
+    scroll.jumpTo(0);
+    await tester.pumpAndSettle();
+    await snapshot(tester, (d) => d['backdropVisible'] == false);
     await nativeEvent(tester, 'onLeadingTapped');
     await tester.pumpAndSettle();
     await snapshot(

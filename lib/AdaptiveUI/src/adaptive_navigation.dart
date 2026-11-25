@@ -149,7 +149,7 @@ class _AdaptiveNavigationShellState extends State<AdaptiveNavigationShell> {
     if (previous != null && index == widget.selectedIndex) setState(() {});
   }
 
-  double _iosBarHeight = 83;
+  double? _iosBarHeight;
   late final Set<int> _visited = {widget.selectedIndex};
   @override
   void didUpdateWidget(AdaptiveNavigationShell oldWidget) {
@@ -163,9 +163,14 @@ class _AdaptiveNavigationShellState extends State<AdaptiveNavigationShell> {
     final nativeGlass =
         AdaptiveUIScope.supportsNativeGlass(context) &&
         !(AdaptiveUIScope.maybeOf(context)?.useOriginalComponents ?? true);
+    // UIKit's fitted height already includes the window's bottom safe area.
+    // The page scope adds that inset to each platform's content height.
+    final fitted = _iosBarHeight;
+    final iosContentHeight = fitted == null
+        ? 50.0
+        : math.max(0.0, fitted - MediaQuery.viewPaddingOf(context).bottom);
     final height = ios
-        ? (platform.PlatformInfo.isIOS26OrHigher() ? _iosBarHeight : 50.0) +
-              24.0
+        ? iosContentHeight
         : nativeGlass
         ? (isHarmonyOS ? HdsNavigation.heightOf(context) + 2 : 56.0)
         : 64.0;
@@ -217,7 +222,7 @@ class _AdaptiveNavigationShellState extends State<AdaptiveNavigationShell> {
                     contentForeground:
                         _pageForegrounds[widget.selectedIndex]?.$2,
                     onNativeHeightChanged: (height) {
-                      if (mounted && (_iosBarHeight - height).abs() > .5) {
+                      if (mounted && _iosBarHeight != height) {
                         setState(() => _iosBarHeight = height);
                       }
                     },
@@ -308,39 +313,38 @@ class _AdaptiveNavigationBar extends StatelessWidget {
       ),
     );
     if (platform.PlatformInfo.isIOS) {
+      if (platform.PlatformInfo.isIOS26OrHigher()) {
+        return platform.IOS26NativeTabBar(
+          onHeightChanged: onNativeHeightChanged,
+          hidden: hidden,
+          selectedIndex: selectedIndex,
+          onTap: onSelected,
+          tint: scheme.primary,
+          destinations: [
+            for (final item in items)
+              platform.AdaptiveNavigationDestination(
+                icon: item.iosSymbol,
+                selectedIcon: item.iosSelectedSymbol,
+                label: item.label,
+              ),
+          ],
+        );
+      }
       return SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: platform.PlatformInfo.isIOS26OrHigher()
-              ? platform.IOS26NativeTabBar(
-                  onHeightChanged: onNativeHeightChanged,
-                  hidden: hidden,
-                  selectedIndex: selectedIndex,
-                  onTap: onSelected,
-                  tint: scheme.primary,
-                  destinations: [
-                    for (final item in items)
-                      platform.AdaptiveNavigationDestination(
-                        icon: item.iosSymbol,
-                        selectedIcon: item.iosSelectedSymbol,
-                        label: item.label,
-                      ),
-                  ],
-                )
-              : CupertinoTabBar(
-                  currentIndex: selectedIndex,
-                  onTap: onSelected,
-                  activeColor: scheme.primary,
-                  items: [
-                    for (final item in items)
-                      BottomNavigationBarItem(
-                        icon: Icon(item.icon),
-                        activeIcon: Icon(item.selectedIcon),
-                        label: item.label,
-                      ),
-                  ],
-                ),
+        bottom: false,
+        child: CupertinoTabBar(
+          currentIndex: selectedIndex,
+          onTap: onSelected,
+          activeColor: scheme.primary,
+          items: [
+            for (final item in items)
+              BottomNavigationBarItem(
+                icon: Icon(item.icon),
+                activeIcon: Icon(item.selectedIcon),
+                label: item.label,
+              ),
+          ],
         ),
       );
     }

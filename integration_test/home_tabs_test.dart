@@ -404,6 +404,16 @@ void main() {
           expect(snapshot?['labels'], ['课表', '课程', '我的']);
           expect(snapshot?['isDark'], dark);
           expect(snapshot?['height'], snapshot?['fittedHeight']);
+          final tabBar = find.byType(platform.IOS26NativeTabBar);
+          final screenSize =
+              tester.view.physicalSize / tester.view.devicePixelRatio;
+          final rect = tester.getRect(tabBar);
+          expect(rect.bottom, closeTo(screenSize.height, .5));
+          expect(rect.width, closeTo(screenSize.width, .5));
+          expect(
+            AdaptiveNavigationScope.scrollClearanceOf(tester.element(tabBar)),
+            closeTo(rect.height, .5),
+          );
         }
         await capture('home-timetable');
         await select(1);
