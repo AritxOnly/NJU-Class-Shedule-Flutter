@@ -71,7 +71,6 @@ class _ImportFromJWViewState extends State<ImportFromJWView> {
   @override
   Widget build(BuildContext context) {
     return AdaptiveScaffold(
-      scrollUnderAppBar: false,
       appBar: AdaptiveTopAppBar(
         title: Text(S.of(context).import_from_JW_title),
       ),

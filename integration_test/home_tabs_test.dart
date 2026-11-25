@@ -457,12 +457,11 @@ void main() {
             expect(bounds[3], 42);
             expect(
               snapshot?['headerHeight'] as num,
-              greaterThan((bounds[1] as num) + (bounds[3] as num)),
+              closeTo((bounds[1] as num) + (bounds[3] as num), .5),
             );
-            expect(
-              ((snapshot?['configuration'] as Map)['scrollOffset'] as num),
-              greaterThan(20),
-            );
+            if (platform.PlatformInfo.isIOS26OrHigher()) {
+              expect(snapshot?['scrollEdgeOffset'], greaterThan(0));
+            }
           }
           await capture(
             'courses-header-scroll-${fraction == 1 ? 'end' : 'middle'}',

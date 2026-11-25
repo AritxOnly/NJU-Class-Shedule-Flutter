@@ -402,7 +402,8 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
               bottom: immersiveScroll ? bottomClearance : null,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
-                  if (notification.depth == 0 &&
+                  if (glass &&
+                      notification.depth == 0 &&
                       notification.metrics.axis == Axis.vertical) {
                     _scrollOffset.value = notification.metrics.pixels.clamp(
                       0.0,
@@ -434,6 +435,7 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
       floatingActionButton: widget.floatingActionButton,
       extendBodyBehindAppBar:
           widget.extendBodyBehindAppBar ||
+          underUIKit ||
           (widget.scrollUnderAppBar && nativeBackend),
       extendBody: widget.extendBody,
       body: Stack(

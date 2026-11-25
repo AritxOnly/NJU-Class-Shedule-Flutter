@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wheretosleepinnju/AdaptiveUI/adaptive_ui.dart';
+import 'package:adaptive_platform_ui/adaptive_platform_ui.dart'
+    show PlatformInfo;
 import 'package:adaptive_platform_ui/src/widgets/ios26/ios26_native_toolbar.dart';
 import 'package:wheretosleepinnju/Models/CourseModel.dart';
 import 'package:wheretosleepinnju/Pages/CourseTable/Widgets/TimetableHeader.dart';
@@ -128,7 +130,15 @@ void main() {
                           controller: scroll,
                           children: List.generate(
                             32,
-                            (i) => SizedBox(height: 64, child: Text('课程 $i')),
+                            (i) => SizedBox(
+                              height: 64,
+                              child: ColoredBox(
+                                color: i.isEven
+                                    ? const Color(0xff9bdada)
+                                    : const Color(0xffffd59b),
+                                child: Center(child: Text('课程 $i')),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -169,22 +179,31 @@ void main() {
     await tester.pumpAndSettle();
     final child = await snapshot(tester, (d) => d['title'] == 'UIKit 子页面');
     expect((child['configuration'] as Map)['leading'], '');
-    expect(child['backdropVisible'], false);
-    final controlsBottom = child['navigationBottom'] as num;
-    expect(child['headerHeight'] as num, greaterThan(controlsBottom));
-    expect(tester.getTopLeft(find.byType(ListView)).dy, 0);
-    expect(
-      tester.getTopLeft(find.text('课程 0')).dy,
-      greaterThanOrEqualTo(controlsBottom),
-    );
-    scroll.jumpTo(80);
+    expect(child['translucent'], true);
+    final controlsBottom = child['navigationBottom'] as double;
+    final list = find.byType(ListView);
+    final first = find.text('课程 0');
+    final restingY = tester.getCenter(first).dy;
+    expect(child['headerHeight'], closeTo(controlsBottom, .5));
+    expect(tester.getTopLeft(list).dy, 0);
+    expect(restingY, greaterThan(controlsBottom));
+    await capture('uikit-secondary-top');
+    // Move the first row behind the title, keeping the row on screen.
+    scroll.jumpTo(restingY - controlsBottom + 16);
     await tester.pumpAndSettle();
-    await snapshot(tester, (d) => d['backdropVisible'] == true);
-    expect(tester.getTopLeft(find.text('课程 0')).dy, lessThan(controlsBottom));
+    expect(tester.getCenter(first).dy, closeTo(controlsBottom - 16, .5));
+    expect(tester.getTopLeft(list).dy, 0);
+    if (PlatformInfo.isIOS26OrHigher()) {
+      await snapshot(
+        tester,
+        (d) => ((d['scrollEdgeOffset'] as num) - scroll.offset).abs() < .5,
+      );
+    }
     await capture('uikit-secondary-scrolled');
     scroll.jumpTo(0);
     await tester.pumpAndSettle();
-    await snapshot(tester, (d) => d['backdropVisible'] == false);
+    expect(tester.getCenter(first).dy, restingY);
+    await snapshot(tester, (d) => d['scrollEdgeOffset'] == 0);
     await nativeEvent(tester, 'onLeadingTapped');
     await tester.pumpAndSettle();
     await snapshot(
@@ -231,6 +250,22 @@ void main() {
         nativeOnly();
         expect(data['titleRenderer'], 'UIKit');
         await capture('uikit-${creating ? 'add' : 'edit'}');
+        final scroll = tester.state<ScrollableState>(
+          find.byType(Scrollable).first,
+        );
+        final nameField = find.byKey(const ValueKey('edit-course-name'));
+        scroll.position.jumpTo(0);
+        await tester.pumpAndSettle();
+        final titleBottom = data['navigationBottom'] as double;
+        final fieldY = tester.getCenter(nameField).dy;
+        expect(fieldY, greaterThan(titleBottom));
+        scroll.position.jumpTo(fieldY - titleBottom + 12);
+        await tester.pumpAndSettle();
+        expect(tester.getCenter(nameField).dy, closeTo(titleBottom - 12, .5));
+        await capture('uikit-${creating ? 'add' : 'edit'}-scrolled');
+        expect(tester.getTopLeft(find.byType(ListView)).dy, 0);
+        scroll.position.jumpTo(0);
+        await tester.pumpAndSettle();
         expect(
           tester.getTopLeft(find.text('全部')).dy,
           tester.getTopLeft(find.text('单周')).dy,
@@ -280,16 +315,6 @@ void main() {
           ),
           true,
         );
-        final scroll = tester.state<ScrollableState>(
-          find.byType(Scrollable).first,
-        );
-        scroll.position.jumpTo(40);
-        await tester.pumpAndSettle();
-        await snapshot(
-          tester,
-          (d) => ((d['configuration'] as Map)['scrollOffset'] as num) >= 40,
-        );
-        expect(tester.getTopLeft(find.byType(ListView)).dy, 0);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
         await tester.pumpAndSettle();
